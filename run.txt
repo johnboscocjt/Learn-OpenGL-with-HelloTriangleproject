@@ -1,0 +1,5 @@
+Compiling:
+clang++ -Wall -Wextra -g3 -I./glad/include hello_triangle.cpp -o ./output/hello_triangle ./glad/src/glad.c -lglfw -ldl
+
+Running:
+./output/hello_triangle

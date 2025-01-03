@@ -1,0 +1,122 @@
+This code is a simple OpenGL program that initializes a window using GLFW and renders a triangle on it. Here’s what each section of the code means:
+1. Includes and Initialization
+#include "glad/include/glad/glad.h"
+#include <GLFW/glfw3.h>
+#include <iostream>
+
+glad.h: Used for managing OpenGL extensions.
+glfw3.h: The GLFW library is used to create windows, handle user input, and manage OpenGL context.
+<iostream>: Standard C++ library for input/output operations.
+
+2. Shader Source Code
+const char* vertexShaderSource = "#version 330 core\n"
+    "layout (location = 0) in vec3 aPos;\n"
+    "void main() {\n"
+    "   gl_Position = vec4(aPos.x , aPos.y, aPos.z, 1.0);\n"
+    "}\0";
+
+const char* fragmentShaderSource = "#version 330 core\n"
+    "out vec4 FragColor;\n"
+    "void main() {\n"
+    "   FragColor = vec4(1.0, 0.5, 0.2, 1.0);\n"
+    "}\0";
+
+
+These strings contain the GLSL (OpenGL Shading Language) code for the vertex and fragment shaders.
+Vertex Shader: It receives vertex positions (aPos), and calculates the final position (gl_Position), which is passed to the fragment shader.
+Fragment Shader: It defines the color of the rendered triangle (FragColor). The color is set to a shade of orange ((1.0, 0.5, 0.2, 1.0)).
+
+3. GLFW Window Initialization
+if (!glfwInit()) {
+    std::cerr << "GLFW initialization failed!" << std::endl;
+    return -1;
+}
+
+Initializes the GLFW library. If it fails, the program prints an error message and exits.
+GLFWwindow* window = glfwCreateWindow(800, 600, "Hello Triangle", nullptr, nullptr);
+if (!window) {
+    glfwTerminate();
+    std::cerr << "Failed to create GLFW window!" << std::endl;
+    return -1;
+}
+
+Creates a window with a size of 800x600 pixels. If window creation fails, it terminates GLFW and exits.
+
+4. GLAD Initialization
+glfwMakeContextCurrent(window);
+if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress)) {
+    std::cerr << "Failed to initialize GLAD!" << std::endl;
+    return -1;
+}
+
+Makes the created window the current OpenGL context.
+Initializes GLAD, which manages OpenGL extensions. If it fails, the program exits.
+
+5. Shader Compilation and Linking
+unsigned int vertexShader = glCreateShader(GL_VERTEX_SHADER);
+glShaderSource(vertexShader, 1, &vertexShaderSource, nullptr);
+glCompileShader(vertexShader);
+
+Creates a vertex shader and compiles it using the source code.
+unsigned int fragmentShader = glCreateShader(GL_FRAGMENT_SHADER);
+glShaderSource(fragmentShader, 1, &fragmentShaderSource, nullptr);
+glCompileShader(fragmentShader);
+
+Creates and compiles the fragment shader.
+unsigned int shaderProgram = glCreateProgram();
+glAttachShader(shaderProgram, vertexShader);
+glAttachShader(shaderProgram, fragmentShader);
+glLinkProgram(shaderProgram);
+
+Links the vertex and fragment shaders together into a program that can be used for rendering.
+
+float vertices[] = {
+    -0.5f, -0.5f, 0.0f, // bottom left
+     0.5f, -0.5f, 0.0f, // bottom right
+     0.0f,  0.5f, 0.0f  // top
+};
+
+Specifies the coordinates of the three vertices of the triangle.
+unsigned int VAO, VBO;
+glGenVertexArrays(1, &VAO);
+glGenBuffers(1, &VBO);
+
+Generates the Vertex Array Object (VAO) and Vertex Buffer Object (VBO) to store the vertex data.
+glBindVertexArray(VAO);
+glBindBuffer(GL_ARRAY_BUFFER, VBO);
+glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
+
+Binds the VAO and VBO, then uploads the vertex data to the GPU.
+glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
+glEnableVertexAttribArray(0);
+
+Specifies how the vertex data is interpreted by the vertex shader and enables the vertex attribute.
+
+7. Main Rendering Loop
+while (!glfwWindowShouldClose(window)) {
+    glClear(GL_COLOR_BUFFER_BIT);
+    
+    glUseProgram(shaderProgram);
+    glBindVertexArray(VAO);
+    glDrawArrays(GL_TRIANGLES, 0, 3);
+
+    glfwSwapBuffers(window);
+    glfwPollEvents();
+}
+
+This loop keeps the window open and continuously renders the triangle.
+glClear(GL_COLOR_BUFFER_BIT): Clears the screen.
+glUseProgram(shaderProgram): Uses the shader program for rendering.
+glDrawArrays(GL_TRIANGLES, 0, 3): Renders the triangle.
+glfwSwapBuffers(window): Swaps the buffer to display the new frame.
+glfwPollEvents(): Handles user input events.
+
+8. Cleanup and Exit
+glDeleteVertexArrays(1, &VAO);
+glDeleteBuffers(1, &VBO);
+glfwDestroyWindow(window);
+glfwTerminate();
+return 0
+
+Cleans up the resources (VAO, VBO) and terminates GLFW before exiting the program.
+This code sets up an OpenGL environment using GLFW and GLAD, compiles shaders, and renders a simple triangle with a fixed color.
